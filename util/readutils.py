@@ -52,7 +52,9 @@ class SALTtraininglightcurve(SALTtrainingdata):
                 sortinds=np.argsort(self.mjd)
                 self.mjd=self.mjd[sortinds]
                 self.tobs=(self.mjd-tpk_guess)
-                self.phase=self.tobs/(1+z)
+                #self.phase=self.tobs/(1+z)
+                self.phase=self.tobs
+
                 self.fluxcal=sn.FLUXCAL[inlightcurve][sortinds]
                 self.fluxcalerr=sn.FLUXCALERR[inlightcurve][sortinds]
                 self.filt=flt
@@ -86,7 +88,8 @@ class SALTtrainingspectrum(SALTtrainingdata):
                         self.flux=snanaspec['FLAM']
                         self.tobs=m -tpk_guess
                         self.mjd=m
-                        self.phase=self.tobs/(1+z)
+                        #self.phase=self.tobs/(1+z)
+                        self.phase=self.tobs
                         self.n_specrecal = n_specrecal
 
                         if 'DQ' in snanaspec:
@@ -142,7 +145,8 @@ class SALTtrainingspectrum(SALTtrainingdata):
 
                         # error floor
                         self.fluxerr = np.hypot(self.fluxerr, 5e-3*np.max(self.flux))
-                        self.restwavelength= self.wavelength/ (1+z)
+                        #self.restwavelength= self.wavelength/ (1+z)
+                        self.restwavelength= self.wavelength
 
                         for key in self.__listdatakeys__: 
                             checksize(self.wavelength,getattr(self,key) )

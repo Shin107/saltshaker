@@ -262,7 +262,8 @@ class modeledtraininglightcurve(modeledtrainingdata):
 
         splinebasisconvolutions=[]
         #Redden passband transmission by MW extinction, multiply by scalar factors
-        reddenedpassband=sn.mwextcurve[waveidxs]*pbspl*dwave*fluxfactor*_SCALE_FACTOR/(1+z)
+        #reddenedpassband=sn.mwextcurve[waveidxs]*pbspl*dwave*fluxfactor*_SCALE_FACTOR/(1+z)
+        reddenedpassband=sn.mwextcurve[waveidxs]*pbspl*dwave*fluxfactor*_SCALE_FACTOR
     
         for pdx in range(len(lc)):
             #For photometry past the edge of the phase grid, extrapolate a linear decline in magnitudes
@@ -587,9 +588,12 @@ class SALTfitcacheSN(SALTtrainingSN):
         if isinstance(specpaddingsizes,int):
             specpaddingsizes=[specpaddingsizes]
 
-        self.obswave = residsobj.wave*(1+self.zHelio)
-        self.obsphase = residsobj.phase*(1+self.zHelio)
-        self.dwave = residsobj.wave[1]*(1+self.zHelio) - residsobj.wave[0]*(1+self.zHelio)
+        # self.obswave = residsobj.wave*(1+self.zHelio)
+        # self.obsphase = residsobj.phase*(1+self.zHelio)
+        # self.dwave = residsobj.wave[1]*(1+self.zHelio) - residsobj.wave[0]*(1+self.zHelio)
+        self.obswave = residsobj.wave
+        self.obsphase = residsobj.phase
+        self.dwave = residsobj.wave[1] - residsobj.wave[0]
         self.mwextcurve   = 10**(-0.4*extinction.fitzpatrick99(self.obswave,sndata.MWEBV*3.1))
         self.mwextcurveint = interp1d(
             self.obswave,self.mwextcurve ,kind=residsobj.interpMethod,bounds_error=False,fill_value=0,assume_sorted=True)
