@@ -20,7 +20,7 @@ def mkModelPlot(
         plotErr=True,n_colorpars=5,host_component=False,
         colorlaw_function=['colorlaw_default']):
 
-    plt.figure(figsize=(5,8))
+    plt.figure(figsize=(6,10))
     plt.subplots_adjust(left=None, bottom=None, right=None, top=None,
                 wspace=0, hspace=0)
     plt.clf()
@@ -144,6 +144,7 @@ def mkModelPlot(
                          color='r',alpha=0.5)
         ax1.set_xlim(xlimits)
         ax1.set_ylim([0,1.35])
+        ax1.legend()
 
         ax1.text(xlimits[1]-100,spacing*(i+0.2),'%s'%plotphasestr,ha='right')
         
@@ -168,6 +169,7 @@ def mkModelPlot(
                              color='r',alpha=0.5)
         ax2.set_xlim(xlimits)
         ax2.set_ylim([-0.05,0.39])
+        ax2.legend()
 
         ax2.text(xlimits[1]-100,spacing*(i+0.2),'%s'%plotphasestr,ha='right')
         
@@ -199,7 +201,7 @@ def mkModelPlot(
             salt3_colormax = float(lines[n_colorpars[j]+3].split()[1])
 
             colorlaw_salt3 = getattr(colorlaw, cf)(len(colorlaw_salt3_coeffs),[salt3_colormin,salt3_colormax])
-            ax3.plot(wave,colorlaw_salt3(1,colorlaw_salt3_coeffs,wave),color=f'C{j}',label=f'SALT3 {cf}')
+            ax3.plot(wave,colorlaw_salt3(1,colorlaw_salt3_coeffs,wave),color=f'r',label=f'SALT3 {cf}')
 
 
 
@@ -324,7 +326,9 @@ def mkModelErrPlot(salt3dir='modelfiles/salt3',outfile=None,xlimits=[2000,9200])
         ax1.set_xlim(xlimits)
         ax1.set_ylim([0,1.35])
 
+
         ax1.text(xlimits[1]-100,spacing*(i+0.2),'%s'%plotphasestr,ha='right')
+        ax1.legend()
     scale=3
     spacing = 0.15
     for plotphase,i,plotphasestr in zip([-5,0,10],range(3),['-5','+0','+10']):
@@ -340,6 +344,7 @@ def mkModelErrPlot(salt3dir='modelfiles/salt3',outfile=None,xlimits=[2000,9200])
         ax2.set_ylim([-0.05,0.39])
 
         ax2.text(xlimits[1]-100,spacing*(i+0.2),'%s'%plotphasestr,ha='right')
+        ax2.legend()
     scale=.2
     for plotphase,i,plotphasestr in zip([-5,0,10],range(3),['-5','+0','+10']):
         int_salt2m0m1corr = RectBivariateSpline(salt2m0m1errphase,salt2m0m1errwave,salt2m0m1corr)
@@ -354,6 +359,7 @@ def mkModelErrPlot(salt3dir='modelfiles/salt3',outfile=None,xlimits=[2000,9200])
         ax3.set_ylim([-0.05,0.39])
 
         ax3.text(xlimits[1]-100,spacing*(i+0.2),'%s'%plotphasestr,ha='right')
+        ax3.legend()
 
         
     salt2clscatwave,salt2clscat=np.genfromtxt('%s/salt2_color_dispersion.dat'%init_rootdir).T
@@ -373,6 +379,7 @@ def mkModelErrPlot(salt3dir='modelfiles/salt3',outfile=None,xlimits=[2000,9200])
     ax2.xaxis.set_ticklabels([])
     ax4.set_xlabel('Wavelength ($\AA$)',fontsize=15)
     ax4.set_ylim([np.min(salt2clscat),np.max(salt2clscat)])
+    
     plt.tight_layout()
     if not outfile is None:
         plt.savefig(outfile)
