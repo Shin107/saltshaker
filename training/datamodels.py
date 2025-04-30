@@ -213,7 +213,8 @@ class modeledtraininglightcurve(modeledtrainingdata):
         pbspl /= denom*HC_ERG_AA
         
         self.lambdaeff = kcordict[sn.survey][lc.filt]['lambdaeff']    
-        self.lambdaeffrest= self.lambdaeff/(1+z)    
+        #self.lambdaeffrest= self.lambdaeff/(1+z)  
+        self.lambdaeffrest= self.lambdaeff  
         self.bsplinecoeffshape=(residsobj.phaseBins[0].size,residsobj.waveBins[0].size)        
         
         self.preintegratebasis=residsobj.preintegrate_photometric_passband
@@ -283,8 +284,9 @@ class modeledtraininglightcurve(modeledtrainingdata):
         #Color law derivatives at filter effective wavelength
 
         #Prefactor for variance
-        self.varianceprefactor=fluxfactor*(pbspl.sum())*dwave* _SCALE_FACTOR*sn.mwextcurveint(self.lambdaeff) /(1+z)
-        
+        #self.varianceprefactor=fluxfactor*(pbspl.sum())*dwave* _SCALE_FACTOR*sn.mwextcurveint(self.lambdaeff) /(1+z)
+        self.varianceprefactor=fluxfactor*(pbspl.sum())*dwave* _SCALE_FACTOR*sn.mwextcurveint(self.lambdaeff)
+
         #Identify the relevant error model parameters
         errorwaveind=np.searchsorted(residsobj.errwaveknotloc,self.lambdaeffrest)-1
         errorphaseind=(np.searchsorted(residsobj.errphaseknotloc,clippedphase)-1)
@@ -455,7 +457,8 @@ class modeledtrainingspectrum(modeledtrainingdata):
         derivInterp=np.zeros((spectrum.wavelength.size,residsobj.im0.size))
         for i in np.where(isrelevant)[0]:
                 derivInterp[:,i] = bisplev(spectrum.phase,self.restwavelength,(residsobj.phaseknotloc,residsobj.waveknotloc,np.arange(residsobj.im0.size)==i, residsobj.bsorder,residsobj.bsorder))
-        derivInterp=derivInterp*(_SCALE_FACTOR/(1+z)*mwextcurve)[:,np.newaxis]
+        #derivInterp=derivInterp*(_SCALE_FACTOR/(1+z)*mwextcurve)[:,np.newaxis]
+        derivInterp=derivInterp*(_SCALE_FACTOR*mwextcurve)[:,np.newaxis]
         self.pcderivsparse=sparse.BCOO.fromdense(np.concatenate((derivInterp,np.zeros((padding,residsobj.im0.size)))))        
 
         pow=self.ispcrcl.size-np.arange(self.ispcrcl.size)
@@ -464,7 +467,8 @@ class modeledtrainingspectrum(modeledtrainingdata):
         self.recaltermderivs=((recalCoord)[:,np.newaxis] ** (pow)[np.newaxis,:]) / factorial(pow)[np.newaxis,:]
         self.recaltermderivs=np.concatenate((self.recaltermderivs,np.zeros((padding,pow.size))))
         
-        self.varianceprefactor= _SCALE_FACTOR*sn.mwextcurveint(self.wavelength) /(1+z)
+        #self.varianceprefactor= _SCALE_FACTOR*sn.mwextcurveint(self.wavelength) /(1+z)
+        self.varianceprefactor= _SCALE_FACTOR*sn.mwextcurveint(self.wavelength) 
         self.varianceprefactor= np.concatenate((self.varianceprefactor, np.zeros(padding)))
         
         errorwaveind=np.searchsorted(residsobj.errwaveknotloc,self.restwavelength)-1
