@@ -54,10 +54,26 @@ class SALTtraininglightcurve(SALTtrainingdata):
                 self.tobs=(self.mjd-tpk_guess)
                 #self.phase=self.tobs/(1+z)
                 self.phase=self.tobs
-
                 self.fluxcal=sn.FLUXCAL[inlightcurve][sortinds]
                 self.fluxcalerr=sn.FLUXCALERR[inlightcurve][sortinds]
                 self.filt=flt
+                # import matplotlib.pyplot as plt
+                # plt.figure(figsize=(8,6))
+                # plt.plot(self.phase,self.fluxcal,'.--',label='Observed lC')
+                # plt.plot(self.phase/(1+z),self.fluxcal,'.:',label='Rest frame LC')
+                # plt.xlabel('Phase')
+                # plt.ylabel('Flux')
+                # plt.legend()
+                # plt.title(str(z)+' rest frame')
+                # plt.grid(ls=':')
+                # safe_flt = flt.replace('/', '_')
+
+                # plt.savefig(f'LCs/lc_{z}_{safe_flt}.png')
+
+
+
+
+                
                 checksize(self.tobs,self.mjd)
                 checksize(self.mjd,self.fluxcal)
                 checksize(self.mjd,self.fluxcalerr)
@@ -83,9 +99,10 @@ class SALTtrainingspectrum(SALTtrainingdata):
                                 wavelength = (snanaspec['LAMMIN']+snanaspec['LAMMAX'])/2
                         else:
                                 raise SNDataReadError('couldn\'t find wavelength data')
-                        self.wavelength=wavelength
-                        self.fluxerr=snanaspec['FLAMERR']
-                        self.flux=snanaspec['FLAM']
+                        self.wavelength=wavelength[wavelength<11000]
+                        
+                        self.fluxerr=snanaspec['FLAMERR'][wavelength<11000]
+                        self.flux=snanaspec['FLAM'][wavelength<11000]
                         self.tobs=m -tpk_guess
                         self.mjd=m
                         #self.phase=self.tobs/(1+z)
@@ -98,6 +115,7 @@ class SALTtrainingspectrum(SALTtrainingdata):
                                 iGood=(snanaspec['SPECFLAG']==1)
                         else:
                                 iGood=np.ones(len(self),dtype=bool)
+                        iGood=iGood[wavelength<11000]
                         iGood = iGood & (~np.isnan(self.flux))
                         if ('DQ' in snanaspec and (snanaspec['DQ']==1).sum() == 0) or np.all(np.isnan(self.flux)):
                                 raise SNDataReadError('Spectrum is all marked as invalid data')
@@ -147,6 +165,17 @@ class SALTtrainingspectrum(SALTtrainingdata):
                         self.fluxerr = np.hypot(self.fluxerr, 5e-3*np.max(self.flux))
                         #self.restwavelength= self.wavelength/ (1+z)
                         self.restwavelength= self.wavelength
+
+                        # import matplotlib.pyplot as plt
+                        # plt.figure(figsize=(8,6))
+                        # plt.plot(self.wavelength,self.flux,'.--',label='Observed SED')
+                        # plt.plot(self.wavelength/(1+z),self.flux,'.:',label='Rest frame SED')
+                        # plt.xlabel('Phase')
+                        # plt.ylabel('Flux')
+                        # plt.title(str(z)+' rest frame')
+                        # plt.grid(ls=':')
+                        # plt.legend()
+                        # plt.savefig(f'Fluxes/flux_{z}_{self.tobs}.png')
 
                         for key in self.__listdatakeys__: 
                             checksize(self.wavelength,getattr(self,key) )

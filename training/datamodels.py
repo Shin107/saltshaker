@@ -265,7 +265,7 @@ class modeledtraininglightcurve(modeledtrainingdata):
         #Redden passband transmission by MW extinction, multiply by scalar factors
         #reddenedpassband=sn.mwextcurve[waveidxs]*pbspl*dwave*fluxfactor*_SCALE_FACTOR/(1+z)
         reddenedpassband=sn.mwextcurve[waveidxs]*pbspl*dwave*fluxfactor*_SCALE_FACTOR
-    
+        
         for pdx in range(len(lc)):
             #For photometry past the edge of the phase grid, extrapolate a linear decline in magnitudes
             if self.phase[pdx]>sn.obsphase.max():
@@ -286,7 +286,7 @@ class modeledtraininglightcurve(modeledtrainingdata):
         #Prefactor for variance
         #self.varianceprefactor=fluxfactor*(pbspl.sum())*dwave* _SCALE_FACTOR*sn.mwextcurveint(self.lambdaeff) /(1+z)
         self.varianceprefactor=fluxfactor*(pbspl.sum())*dwave* _SCALE_FACTOR*sn.mwextcurveint(self.lambdaeff)
-
+        #import pdb;pdb.set_trace()
         #Identify the relevant error model parameters
         errorwaveind=np.searchsorted(residsobj.errwaveknotloc,self.lambdaeffrest)-1
         errorphaseind=(np.searchsorted(residsobj.errphaseknotloc,clippedphase)-1)
@@ -297,7 +297,10 @@ class modeledtraininglightcurve(modeledtrainingdata):
         errordesignmat=scisparse.lil_matrix((len(lc)+padding,residsobj.imodelerr0.size ))
         errordesignmat[np.arange(0,len(lc)),ierrorbin ]= 1
         self.errordesignmat= sparse.BCOO.from_scipy_sparse(errordesignmat)
-        
+        # try:
+        #     import pdb;pdb.set_trace()
+        # except:
+        #     pass
         
         pow=self.iclscat.size-1-np.arange(self.iclscat.size)
         colorscateval=((self.lambdaeffrest-5500)/1000)
@@ -327,6 +330,11 @@ class modeledtraininglightcurve(modeledtrainingdata):
             #Redden flux coefficients
             fluxcoeffsreddened= (colorexp[np.newaxis,:]*fluxcoeffs.reshape( self.bsplinecoeffshape)).flatten()
             #Multiply spline bases by flux coefficients
+            # try:
+            #     import pdb;pdb.set_trace()
+            # except:
+            #     pass
+
             return jnp.clip(self.pcderivsparse @ fluxcoeffsreddened,0,None)
         else:    
             #Integrate basis functions over wavelength and sum over flux coefficients
@@ -384,7 +392,16 @@ class modeledtraininglightcurve(modeledtrainingdata):
         #if clscat>0, then need to use a cholesky matrix to find pulls
         def choleskyresidsandnorm( variance,clscat,modelflux):
             cholesky=jaxlinalg.cholesky(jnp.diag(variance)+ clscat**2*jnp.outer(modelflux,modelflux),lower=True)
-            
+            # import pickle 
+            # fluxcal_cpu = np.array(jax.device_get(self.fluxcal))
+            # with open('phot_dat','wb') as f:
+            #     pickle.dump(fluxcal_cpu,f)
+            # modelflux_cpu = np.array(jax.device_get(modelflux))
+            # with open('model_flux','wb') as f:
+            #     pickle.dump(modelflux_cpu,f)
+
+            import pdb; pdb.set_trace()
+
             return {'residuals':jnp.nan_to_num(jaxlinalg.solve_triangular(cholesky, modelflux-self.fluxcal,lower=True),nan=0), 
                     'lognorm': -jnp.log(jnp.diag(cholesky)).sum()-zeropoint}
         
@@ -596,6 +613,7 @@ class SALTfitcacheSN(SALTtrainingSN):
         # self.obsphase = residsobj.phase*(1+self.zHelio)
         # self.dwave = residsobj.wave[1]*(1+self.zHelio) - residsobj.wave[0]*(1+self.zHelio)
         self.obswave = residsobj.wave
+        print(self.zhelio,'\n\n')
         self.obsphase = residsobj.phase
         self.dwave = residsobj.wave[1] - residsobj.wave[0]
         self.mwextcurve   = 10**(-0.4*extinction.fitzpatrick99(self.obswave,sndata.MWEBV*3.1))
