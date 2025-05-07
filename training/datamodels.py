@@ -245,7 +245,7 @@ class modeledtraininglightcurve(modeledtrainingdata):
         dwave=sn.dwave
         fluxfactor=residsobj.fluxfactor[sn.survey][lc.filt]
         #print('\n\nObsv wave:',repr(sn.obswave))
-        #print('Original wave',repr(residsobj.wave))
+        #print('Original wav
         wave=residsobj.wave[waveidxs]
         #print("Truncated wave:",repr(wave),'\n\n')
         #Evaluate the b-spline basis functions for this passband
@@ -400,7 +400,7 @@ class modeledtraininglightcurve(modeledtrainingdata):
             # with open('model_flux','wb') as f:
             #     pickle.dump(modelflux_cpu,f)
 
-            import pdb; pdb.set_trace()
+            #import pdb; pdb.set_trace()
 
             return {'residuals':jnp.nan_to_num(jaxlinalg.solve_triangular(cholesky, modelflux-self.fluxcal,lower=True),nan=0), 
                     'lognorm': -jnp.log(jnp.diag(cholesky)).sum()-zeropoint}
@@ -613,7 +613,7 @@ class SALTfitcacheSN(SALTtrainingSN):
         # self.obsphase = residsobj.phase*(1+self.zHelio)
         # self.dwave = residsobj.wave[1]*(1+self.zHelio) - residsobj.wave[0]*(1+self.zHelio)
         self.obswave = residsobj.wave
-        print(self.zhelio,'\n\n')
+        #print(self.zhelio,'\n\n')
         self.obsphase = residsobj.phase
         self.dwave = residsobj.wave[1] - residsobj.wave[0]
         self.mwextcurve   = 10**(-0.4*extinction.fitzpatrick99(self.obswave,sndata.MWEBV*3.1))
